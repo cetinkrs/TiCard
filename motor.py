@@ -61,6 +61,10 @@ class TiCardMotoru:
             elif zorluk_secimi == "kolay":
                 yeni_tarih = su_an + timedelta(days=4)
 
+            else:
+                print("Yanlış zorluk seçimi lütfen daha sonra tekrar deneyiniz.")
+                return False
+                #UI de burayı kullanıcının tekrar bir seçim yapmasına olanak tanıyacağımız şekilde düzenlememiz laızm .
             self.veriler[deste_adi][kelime]["sonraki_tekrar"] = yeni_tarih.strftime("%Y-%m-%d %H:%M:%S")
             depolama.verileri_kaydet(self.veriler)
             

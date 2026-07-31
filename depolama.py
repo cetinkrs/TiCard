@@ -13,11 +13,17 @@ def verileri_yukle():
         with open(DOSYA_YOLU, "w", encoding="utf-8") as dosya:
             json.dump({}, dosya)
         return {} # Boş sözlük döndür
-    
-    # Dosya varsa 'r' (varsayılan) moduyla okuyup içindeki veriyi Python'a aktar
-    with open(DOSYA_YOLU, "r", encoding="utf-8") as dosya:
-        return json.load(dosya)
-
+    try:
+        # Dosya varsa 'r' (varsayılan) moduyla okuyup içindeki veriyi Python'a aktar
+        with open(DOSYA_YOLU, "r", encoding="utf-8") as dosya:
+                return json.load(dosya)
+    except json.JSONDecodeError:
+        os.rename(DOSYA_YOLU, DOSYA_YOLU.replace(".json", "_bozuk.json"))
+        print("UYARI: kelimeler.json bozuk görünüyor.Bozuk dosya 'kelimeler_bozuk.json' olarak yedeklendi.Uygulama boş veriyle başlatılıyor.")
+        return {}
+    except OSError:
+        print("Dosya açılamadı.")
+        return {}
 def verileri_kaydet(veri):
     """Sistemdeki güncel veriyi (sözlüğü) alıp JSON formatında dosyaya yazar."""
     with open(DOSYA_YOLU, "w", encoding="utf-8") as dosya:

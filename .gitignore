@@ -1,0 +1,11 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Veri dosyası (kişisel kelime verisi, repoya eklenmesin)
+kelimeler.json
+
+# IDE dosyaları
+.vscode/
+.idea/

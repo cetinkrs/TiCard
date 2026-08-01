@@ -104,3 +104,29 @@ def test_kelime_guncelle_kelime_yok(motor):
     motor.deste_olustur("Test_Destesi")
     sonuc = motor.kelime_güncelle("Test_Destesi", "Acquire", "Edinmek", "Örnek cümle")
     assert sonuc == False
+
+def test_kelime_guncelle_sadece_ornek(motor):
+    motor.deste_olustur("Test_Destesi")
+    motor.kelime_olustur("Test_Destesi", "Acquire", "eski anlam", "eski örnek")
+    motor.kelime_güncelle("Test_Destesi", "Acquire", cagrisim_ornek="yeni örnek")
+    
+    # örnek değişmeli
+    assert motor.veriler["Test_Destesi"]["Acquire"]["cagrisim_ornek"] == "yeni örnek"
+    # anlam olduğu gibi kalmalı
+    assert motor.veriler["Test_Destesi"]["Acquire"]["anlam"] == "eski anlam"
+
+def test_kelime_guncelle_sadece_anlam(motor):
+    motor.deste_olustur("Test_Destesi")
+    motor.kelime_olustur("Test_Destesi", "Acquire", "eski anlam", "eski örnek")
+    motor.kelime_güncelle("Test_Destesi", "Acquire", anlam="yeni anlam")
+
+    assert motor.veriler["Test_Destesi"]["Acquire"]["cagrisim_ornek"] == "eski örnek"
+    assert motor.veriler["Test_Destesi"]["Acquire"]["anlam"] == "yeni anlam"
+
+def test_kelime_guncelle_her_ikiside(motor):
+    motor.deste_olustur("Test_Destesi")
+    motor.kelime_olustur("Test_Destesi", "Acquire", "eski anlam", "eski örnek")
+    motor.kelime_güncelle("Test_Destesi", "Acquire", anlam="yeni anlam", cagrisim_ornek="yeni örnek")
+
+    assert motor.veriler["Test_Destesi"]["Acquire"]["cagrisim_ornek"] == "yeni örnek"
+    assert motor.veriler["Test_Destesi"]["Acquire"]["anlam"] == "yeni anlam"

@@ -11,7 +11,7 @@ class TiCardMotoru:
         # Yeni bir deste ekleme mantığı buraya yazılacak
         if self._deste_adi_var_mi(deste_adi):
             return False
-        # buraya bir adet hata mesajı eklenecek 
+        
         else:
             self.veriler[deste_adi] = {} #Sözlükler de köşeli parantez, sözlüğün içindeki bir "anahtar(key)" işaret etmek için kullanırız.
             depolama.verileri_kaydet(self.veriler)
@@ -99,39 +99,4 @@ class TiCardMotoru:
         return deste_adi in self.veriler
     def _kelime_var_mi(self, deste_adi, kelime):
         return kelime in self.veriler[deste_adi]
-
-
-
-        
-if __name__ == "__main__":
-    print("ilk testimiz başlıyor.")
-
-    # 1. Motoru canlandırıyoruz
-    motor = TiCardMotoru()
     
-    # 2. Yeni bir deste oluşturuyoruz
-    motor.deste_olustur("İngilizce_B1")
-    
-    # 3. İçine test kelimeleri ekliyoruz
-    motor.kelime_olustur("İngilizce_B1", "Acquire", "Elde etmek, kazanmak", "She acquired a new language.")
-    motor.kelime_olustur("İngilizce_B1", "Resilient", "Dirençli, çabuk toparlanan", "He is very resilient after failures.")
-    
-    # 4. Vakti gelenleri soruyoruz (Kelimeler "Şu an" eklendiği için ikisinin de saati gelmiş sayılacak)
-    vakti_gelenler = motor.calisicak_kelimeleri_getir("İngilizce_B1")
-    print(f"İlk ekleme sonrası çalışılacaklar: {vakti_gelenler}")
-    
-    # 5. Simülasyon: 'Acquire' kelimesini çalıştık ve 'Kolay' butonuna bastık diyelim
-    motor.tekrar_zamani_guncelle("İngilizce_B1", "Acquire", "kolay")
-    print("-> 'Acquire' kelimesi 'kolay' olarak işaretlendi (4 gün sonraya atıldı).")
-    
-    # 6. Vakti gelenleri tekrar soruyoruz
-    guncel_vakti_gelenler = motor.calisicak_kelimeleri_getir("İngilizce_B1")
-    print(f"Güncelleme sonrası çalışılacaklar: {guncel_vakti_gelenler}")
-    
-    print("--- Test Bitti ---")
-
-
-
-
-
-

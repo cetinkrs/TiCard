@@ -110,9 +110,7 @@ def test_kelime_guncelle_sadece_ornek(motor):
     motor.kelime_olustur("Test_Destesi", "Acquire", "eski anlam", "eski örnek")
     motor.kelime_güncelle("Test_Destesi", "Acquire", cagrisim_ornek="yeni örnek")
     
-    # örnek değişmeli
     assert motor.veriler["Test_Destesi"]["Acquire"]["cagrisim_ornek"] == "yeni örnek"
-    # anlam olduğu gibi kalmalı
     assert motor.veriler["Test_Destesi"]["Acquire"]["anlam"] == "eski anlam"
 
 def test_kelime_guncelle_sadece_anlam(motor):
@@ -130,3 +128,15 @@ def test_kelime_guncelle_her_ikiside(motor):
 
     assert motor.veriler["Test_Destesi"]["Acquire"]["cagrisim_ornek"] == "yeni örnek"
     assert motor.veriler["Test_Destesi"]["Acquire"]["anlam"] == "yeni anlam"
+
+#DESTE_SİL
+def test_deste_sil_basarili(motor):
+    motor.deste_olustur("Test_Destesi")
+    sonuc = motor.deste_sil("Test_Destesi")
+
+    assert sonuc == True
+
+def test_deste_sil_deste_yok(motor):
+    sonuc = motor.deste_sil("Test_Destesi")
+
+    assert sonuc == False

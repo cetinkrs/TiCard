@@ -6,7 +6,7 @@ def ana_menu():
 
     while True:
         try:
-            print("[1] Deste Oluştur\t[2] Kelime Ekle\t[3] Çalışmaya Başla\t[4] Kelime Sil\t[5] Kelime Güncelle\t[6] Çıkış ")
+            print("[1] Deste Oluştur\t[2] Kelime Ekle\t[3] Çalışmaya Başla\t[4] Kelime Sil\t[5] Kelime Güncelle\t[6] Deste Sil\t[7] Çıkış")
             secim = int(input("Yapmak İstediğiniz İşlemi Seçiniz: "))
 
             if secim == 1:
@@ -95,9 +95,18 @@ def ana_menu():
                     print("işleminiz başarıyla gerçekleştirildi")
 
             elif secim == 6:
+                print(f"Mevcut Desteler:{list(motor.veriler.keys())}")
+                deste_adi = input("Silmek istediğiniz destenin ismini giriniz:")
+                sonuc = motor.deste_sil(deste_adi)
+
+                if sonuc is False:
+                    print("Bu deste zaten silinmiş.")
+                else:
+                    print("işleminiz başarıyla gerçekleştirildi")
+            
+            elif secim == 7:
                 print("Uygulamadan çıkış yapılıyor iyi günler...")
                 break
-            
             else:
                 print("Geçersiz seçim.")
         except KeyboardInterrupt:

@@ -8,7 +8,7 @@ class TiCardMotoru:
         self.veriler = depolama.verileri_yukle()
 
     def deste_olustur(self, deste_adi):
-        # Yeni bir deste ekleme mantığı buraya yazılacak
+        
         if self._deste_adi_var_mi(deste_adi):
             return False
         
@@ -30,7 +30,7 @@ class TiCardMotoru:
                 "anlam": anlam,
                 "cagrisim_ornek": cagrisim_ornek,
                 "durum": "yeni",
-                "sonraki_tekrar": su_an# şimdilik rastgele bir tarih giriyoruz
+                "sonraki_tekrar": su_an
             }
             depolama.verileri_kaydet(self.veriler)
             return True
@@ -94,6 +94,15 @@ class TiCardMotoru:
                 self.veriler[deste_adi][kelime]["cagrisim_ornek"] = cagrisim_ornek
             depolama.verileri_kaydet(self.veriler)
             return True
+
+    def deste_sil(self, deste_adi):
+        if not self._deste_adi_var_mi(deste_adi):
+            return False
+        else:
+            del self.veriler[deste_adi]
+            depolama.verileri_kaydet(self.veriler)
+            return True
+            
         
     def _deste_adi_var_mi(self, deste_adi):
         return deste_adi in self.veriler

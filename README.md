@@ -62,4 +62,4 @@ ticard/
 - [ ] Desktop UI with CustomTkinter
 
 ## License
-MIT License — feel free to use and modify. bu iyimidir sence
+MIT License — feel free to use and modify. 

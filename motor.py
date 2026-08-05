@@ -103,7 +103,20 @@ class TiCardMotoru:
             depolama.verileri_kaydet(self.veriler)
             return True
             
+    def istatistik_getir(self):
+        toplam_deste = len(self.veriler)
+        desteler = {}
+        bugun_calisilicak = 0
+        for deste in self.veriler:
+            desteler[deste] = len(self.veriler[deste])
+            bugun_calisilicak += len(self.calisicak_kelimeleri_getir(deste))
+        return {
+            "toplam_deste" : toplam_deste,
+            "desteler" : desteler,
+            "bugun_calisilicak" : bugun_calisilicak
+        }
         
+
     def _deste_adi_var_mi(self, deste_adi):
         return deste_adi in self.veriler
     def _kelime_var_mi(self, deste_adi, kelime):

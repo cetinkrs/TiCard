@@ -6,7 +6,7 @@ def ana_menu():
 
     while True:
         try:
-            print("[1] Deste Oluştur\t[2] Kelime Ekle\t[3] Çalışmaya Başla\t[4] Kelime Sil\t[5] Kelime Güncelle\t[6] Deste Sil\t[7] Çıkış")
+            print("[1] Deste Oluştur\t[2] Kelime Ekle\t[3] Çalışmaya Başla\t[4] Kelime Sil\t[5] Kelime Güncelle\t[6] Deste Sil\t[7] İstatistikleri Gör\t[8] Çıkış")
             secim = int(input("Yapmak İstediğiniz İşlemi Seçiniz: "))
 
             if secim == 1:
@@ -105,6 +105,16 @@ def ana_menu():
                     print("işleminiz başarıyla gerçekleştirildi")
             
             elif secim == 7:
+    
+                istatistik = motor.istatistik_getir()  
+                print("=== İstatistikler ===")
+                print(f"Toplam deste sayısı: {istatistik['toplam_deste']}")
+                print(f"\nDeste bazlı kelime sayısı:")
+                for deste, sayi in istatistik["desteler"].items():
+                    print(f"  - {deste}: {sayi} kelime")
+                print(f"\nBugün çalışılacak toplam kelime: {istatistik['bugun_calisilicak']}")
+            
+            elif secim == 8:
                 print("Uygulamadan çıkış yapılıyor iyi günler...")
                 break
             else:

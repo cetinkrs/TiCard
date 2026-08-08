@@ -239,7 +239,7 @@ class TiCardApp(ctk.CTk ):
             values= deste_secenekleri
         )
         deste_secim.pack(pady = (10))
-            
+
         kelime_secenekleri = list(self.motor.veriler[deste_secim.get()].keys())
         kelime_secim = ctk.CTkOptionMenu(
             pencere,
@@ -247,14 +247,94 @@ class TiCardApp(ctk.CTk ):
         )
         kelime_secim.pack(pady = (10))
 
-    # en son burada kaldım Tarih:07/08/2026 kelimelerin dinamik olarak ekrana gelebilmesi için bir yapı kurmamız lazım 
+        def deste_degisti(secilen_deste):
+            yeni_kelimeler = list(self.motor.veriler[secilen_deste].keys())
+            kelime_secim.configure(values=yeni_kelimeler)
+            if yeni_kelimeler:
+                kelime_secim.set(yeni_kelimeler[0])
+            else:
+                kelime_secim.set("")
+
+        deste_secim.configure(command=deste_degisti)
+
+        sonuc_label = ctk.CTkLabel(pencere, text="")
+        sonuc_label.pack(pady=5)
+
+        def sil_tiklandi():
+            deste_adi = deste_secim.get()
+            kelime = kelime_secim.get()
+
+            if kelime == "":
+                sonuc_label.configure(text="Silinecek kelime yok.", text_color="orange")
+                return
+            sonuc = self.motor.kelime_sil(deste_adi, kelime)
+            if sonuc:
+                sonuc_label.configure(text=f"'{kelime}' silindi!", text_color="green")
+                deste_degisti(deste_adi)
+            else:
+                sonuc_label.configure(text="Silme işlemi başarısız.", text_color="red")
+        sil_btn = ctk.CTkButton(
+            pencere,
+            text="Sil",
+            command=sil_tiklandi
+        )   
+        sil_btn.pack(pady=(15))
     
     def kelime_guncelle_ekrani(self):
         print("Kelime güncelle ekranı açılacak (henüz yazılmadı)")
 
     def deste_sil_ekrani(self):
-        print("Deste sil ekranı açılacak (henüz yazılmadı)")
+        pencere = ctk.CTkToplevel(self)
+        pencere.title("Deste Sil")
+        pencere.geometry("400x400")
 
+        baslik = ctk.CTkLabel(
+            pencere,
+            text="Deste Sil",
+            font=("Arial", 20, "bold")
+        )
+        baslik.pack(pady=(15))
+        desteler = list(self.motor.veriler.keys())
+        deste_secim = ctk.CTkOptionMenu(
+            pencere,
+            values = desteler
+        )
+        deste_secim.pack(pady=15)
+
+        
+        sonuc_label = ctk.CTkLabel(pencere, text="")
+        sonuc_label.pack(pady=5)
+
+        def sil_tiklandi():
+            deste_adi = deste_secim.get()
+
+            if deste_adi == "":
+                sonuc_label.configure(text="Silinecek deste yok", text_color = "orange")
+                return
+
+            sonuc = self.motor.deste_sil(deste_adi)
+            if sonuc:
+                sonuc_label.configure(text="Desteniz silinmiştir", text_color = "green")
+                deste_guncelle() 
+            else:
+                sonuc_label.configure(text="Silme işlemi başarısız.", text_color="red")
+                
+
+        sil_btn = ctk.CTkButton(
+            pencere,
+            text="Sil",
+            command=sil_tiklandi
+        )
+        sil_btn.pack(pady=5)
+
+        def deste_guncelle():
+            deste = list(self.motor.veriler.keys())
+            deste_secim.configure(values = deste)
+            if deste:
+                deste_secim.set(deste[0])
+            else:
+                deste_secim.set("")
+        
     def istatistik_ekrani(self):
         print("İstatistik ekranı açılacak (henüz yazılmadı)")
 

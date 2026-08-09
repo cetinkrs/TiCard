@@ -336,7 +336,39 @@ class TiCardApp(ctk.CTk ):
                 deste_secim.set("")
         
     def istatistik_ekrani(self):
-        print("İstatistik ekranı açılacak (henüz yazılmadı)")
+        for widget in self.icerik_frame.winfo_children():
+            widget.destroy()
+        
+        baslik = ctk.CTkLabel(
+            self.icerik_frame,
+            text="İstatistikler",
+            font=("Arial", 30, "bold")
+        )
+        baslik.pack(pady=15)
+
+        sonuc = self.motor.istatistik_getir()
+
+        toplam_label = ctk.CTkLabel(
+            self.icerik_frame,
+            text=f"Toplam deste sayısı: {sonuc['toplam_deste']}"
+        )
+        toplam_label.pack(pady=10)
+        
+        for i, (deste_adi, kelime_sayisi) in enumerate(sonuc["desteler"].items(), start = 1):
+            satir = ctk.CTkLabel(
+                self.icerik_frame,
+                text=f"{i}.Deste: {deste_adi}. Kelime sayisi: {kelime_sayisi}"
+            )
+            satir.pack(pady=5)
+            
+        
+        bugun_calis = ctk.CTkLabel(
+            self.icerik_frame,
+            text=f"Bugün Çalışılıcak Kelime Sayısı: {sonuc['bugun_calisilicak']}"
+        )
+        bugun_calis.pack(pady=10)
+
+
 
 if __name__ == "__main__":
     app = TiCardApp()

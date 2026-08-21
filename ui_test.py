@@ -281,7 +281,86 @@ class TiCardApp(ctk.CTk ):
         sil_btn.pack(pady=(15))
     
     def kelime_guncelle_ekrani(self):
-        print("Kelime güncelle ekranı açılacak (henüz yazılmadı)")
+        pencere = ctk.CTkToplevel(self)
+        pencere.title("Kelime Güncelle")
+        pencere.geometry("400x400")
+
+        baslik = ctk.CTkLabel(
+            pencere,
+            text = "Kelime Güncelle",
+            font = ("Arial", 20, "bold")
+        )
+        baslik.pack(pady=15)
+
+        desteler = list(self.motor.veriler.keys())
+        deste_secim = ctk.CTkOptionMenu(
+            pencere,
+            values = desteler
+        )
+        deste_secim.pack(pady=15)
+
+        kelime_secenekleri = list(self.motor.veriler[deste_secim.get()].keys())
+        kelime_secim = ctk.CTkOptionMenu(
+            pencere,
+            values= kelime_secenekleri,
+        )
+        kelime_secim.pack(pady = (10))
+
+        anlam_entry = ctk.CTkEntry(
+            pencere,
+            placeholder_text = "anlam giriniz",
+            width = 200
+        )
+        anlam_entry.pack(pady=15)
+
+
+        cagrisim_entry = ctk.CTkEntry(
+            pencere,
+            placeholder_text = "örnek giriniz",
+            width = 200
+        )
+        cagrisim_entry.pack(pady=15)
+
+        def deste_degisti(secilen_deste):
+            yeni_kelimeler = list(self.motor.veriler[secilen_deste].keys())
+            kelime_secim.configure(values=yeni_kelimeler)
+            if yeni_kelimeler:
+                kelime_secim.set(yeni_kelimeler[0])
+            else:
+                kelime_secim.set("")
+        
+        deste_secim.configure(command=deste_degisti)
+
+        sonuc_label = ctk.CTkLabel(pencere, text="")
+        sonuc_label.pack(pady=5)
+
+        def guncelle_tiklandi():
+            yeni_anlam = anlam_entry.get().strip()
+            if yeni_anlam == "":
+                 yeni_anlam = None
+
+            yeni_cagrisim = cagrisim_entry.get().strip()
+            if yeni_cagrisim == "":
+                yeni_cagrisim = None           
+            deste_adi = deste_secim.get()
+            kelime = kelime_secim.get()
+            if kelime == "":
+                sonuc_label.configure(text="güncellenecek kelime yok", text_color="orange")
+                return
+            
+            sonuc = self.motor.kelime_güncelle(deste_adi, kelime, yeni_anlam, yeni_cagrisim)
+            if sonuc:
+                sonuc_label.configure(text=f"'{kelime}' güncellendi!", text_color="green")
+                deste_degisti(deste_adi)
+            else:
+                sonuc_label.configure(text="Güncelleme işlemi başarısız.", text_color="red")
+
+        guncelle_btn = ctk.CTkButton(
+            pencere,
+            text = "Güncelle",
+            command=guncelle_tiklandi
+        )
+        guncelle_btn.pack(pady=15)
 
     def deste_sil_ekrani(self):
         pencere = ctk.CTkToplevel(self)

@@ -6,6 +6,8 @@ class TiCardApp(ctk.CTk ):
         super().__init__()
         self.title("TiCard")
         self.motor = TiCardMotoru() # self lerin kullanımını araştır
+        self.calisma_listesi = []
+        self.calisma_index = 0
         self.geometry("900x600")
         self.giris_ekrani_goster()
     
@@ -219,8 +221,110 @@ class TiCardApp(ctk.CTk ):
         kelime_ekle.pack(pady=(15))
         
     def calis_ekrani(self):
-        print("Çalışma ekranı açılacak (henüz yazılmadı)")
+        for widget in self.icerik_frame.winfo_children():
+            widget.destroy()
 
+        baslik = ctk.CTkLabel(
+            self.icerik_frame,
+            text="Çalışmaya Başlıyalım",
+            font=("Arial", 18, "bold")
+        )
+        baslik.pack(pady = 10)
+
+        desteler = list(self.motor.veriler.keys())
+        deste_secim = ctk.CTkOptionMenu(
+            self.icerik_frame,
+            values=desteler
+        )
+        deste_secim.pack(pady=15)
+
+        def basla_tiklandi():
+            self.deste_adi = deste_secim.get()
+            self.calisma_listesi = self.motor.calisicak_kelimeleri_getir(self.deste_adi)
+            self.calisma_index = 0
+            for widget in self.icerik_frame.winfo_children():
+                widget.destroy()
+            if not self.calisma_listesi:
+                bos_label = ctk.CTkLabel(self.icerik_frame, text="Çalışılacak kelime yok.")
+                bos_label.pack(pady=15)
+                return
+            self.kelime_goster()
+
+        deste_button = ctk.CTkButton(
+            self.icerik_frame,
+            text = "Başla",
+            command=basla_tiklandi
+        )
+        deste_button.pack(pady=(10,15))
+    def cevap_goster(self):
+        for widget in self.icerik_frame.winfo_children():
+            widget.destroy()
+        su_anki_kelime = self.calisma_listesi[self.calisma_index]
+        su_anki_anlam = self.motor.veriler[self.deste_adi][su_anki_kelime]["anlam"]
+        su_anki_cagrisim = self.motor.veriler[self.deste_adi][su_anki_kelime]["cagrisim_ornek"]
+
+        anlam_goster = ctk.CTkLabel(
+            self.icerik_frame,
+            text = su_anki_anlam,
+            font=("Arial", 12, "bold")
+        )
+        anlam_goster.pack(pady = 10)
+
+        ornek_goster = ctk.CTkLabel(
+            self.icerik_frame,
+            text = su_anki_cagrisim,
+            font=("Arial", 12, "bold")
+        )
+        ornek_goster.pack(pady = 10)
+
+        def zor_tiklandi():
+            pass
+        def orta_tiklandi():
+            pass
+        def kolay_tiklandi():
+            pass
+        kolay_btn = ctk.CTkButton(
+            self.icerik_frame,
+            text = "Kolay",
+            command=kolay_tiklandi
+        )
+        kolay_btn.pack(padx=10)
+
+        orta_btn = ctk.CTkButton(
+            self.icerik_frame,
+            text = "Orta",
+            command=orta_tiklandi
+        )
+        orta_btn.pack(padx=10)
+
+        zor_btn = ctk.CTkButton(
+            self.icerik_frame,
+            text = "Zor",
+            command=zor_tiklandi
+        )
+        zor_btn.pack(padx=10) 
+        
+    def kelime_goster(self):
+        for widget in self.kelime_frame.winfo_children():
+            widget.destroy()
+        for widget in self.icerik_frame.winfo_children():
+            widget.destroy()        
+        su_anki_kelime = self.calisma_listesi[self.calisma_index]
+
+        kelime_label = ctk.CTkLabel(
+            self.kelime_frame,
+            text = su_anki_kelime,
+            font=("Arial", 24, "bold")
+        )
+        kelime_label.pack(pady=20)
+
+        cvp_btn = ctk.CTkButton(
+            self.icerik_frame,
+            text = "Cevabı Gör",
+            command=self.cevap_goster
+        )
+        cvp_btn.pack(pady=20) 
+            
     def kelime_sil_ekrani(self):
         pencere = ctk.CTkToplevel(self)
         pencere.title("Kelime Sil")

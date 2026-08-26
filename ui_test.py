@@ -93,7 +93,7 @@ class TiCardApp(ctk.CTk ):
         
         kelime_label = ctk.CTkLabel(
             self.kelime_frame,
-            text="Kelime burada görünecek",
+            text="Hoşgeldiniz",
             font=("Arial", 24, "bold")
         )
         kelime_label.pack(pady=20)
@@ -256,6 +256,7 @@ class TiCardApp(ctk.CTk ):
             command=basla_tiklandi
         )
         deste_button.pack(pady=(10,15))
+
     def cevap_goster(self):
         for widget in self.icerik_frame.winfo_children():
             widget.destroy()
@@ -265,44 +266,57 @@ class TiCardApp(ctk.CTk ):
 
         anlam_goster = ctk.CTkLabel(
             self.icerik_frame,
-            text = su_anki_anlam,
+            text = f"Anlam:{su_anki_anlam}",
             font=("Arial", 12, "bold")
         )
         anlam_goster.pack(pady = 10)
 
         ornek_goster = ctk.CTkLabel(
             self.icerik_frame,
-            text = su_anki_cagrisim,
+            text = f"Örnek: {su_anki_cagrisim}",
             font=("Arial", 12, "bold")
         )
         ornek_goster.pack(pady = 10)
 
-        def zor_tiklandi():
-            pass
-        def orta_tiklandi():
-            pass
-        def kolay_tiklandi():
-            pass
+        def zorluk_tiklandi(zorluk):
+            self.motor.tekrar_zamani_guncelle(self.deste_adi, su_anki_kelime, zorluk)
+            self.calisma_index +=1
+            if self.calisma_index < len(self.calisma_listesi):
+                self.kelime_goster()
+            else:
+                for widget in self.icerik_frame.winfo_children():
+                    widget.destroy()
+                for widget in self.kelime_frame.winfo_children():
+                    widget.destroy()
+                mesaj_lbl = ctk.CTkLabel(
+                    self.icerik_frame,
+                    text="Tebrikler Desteyi Bitirdiniz.",
+                    font=("Arial", 24, "bold")
+                )
+                mesaj_lbl.pack(pady=15)
+        btn_frame = ctk.CTkFrame(self.icerik_frame)
+        btn_frame.pack(pady=150)
+
         kolay_btn = ctk.CTkButton(
-            self.icerik_frame,
+            btn_frame,
             text = "Kolay",
-            command=kolay_tiklandi
+            command=lambda: zorluk_tiklandi("kolay")
         )
-        kolay_btn.pack(padx=10)
+        kolay_btn.pack(side="left", padx=10, pady=10)
 
         orta_btn = ctk.CTkButton(
-            self.icerik_frame,
+            btn_frame,
             text = "Orta",
-            command=orta_tiklandi
+            command=lambda: zorluk_tiklandi("orta")
         )
-        orta_btn.pack(padx=10)
+        orta_btn.pack(side="left", padx=10, pady=10)
 
         zor_btn = ctk.CTkButton(
-            self.icerik_frame,
+            btn_frame,
             text = "Zor",
-            command=zor_tiklandi
+            command=lambda: zorluk_tiklandi("zor")
         )
-        zor_btn.pack(padx=10) 
+        zor_btn.pack(side="left", padx=10, pady=10) 
         
     def kelime_goster(self):
         for widget in self.kelime_frame.winfo_children():

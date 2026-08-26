@@ -1,18 +1,20 @@
 # TiCard — Vocabulary Learning App
 
-A terminal-based vocabulary learning application that uses the **Spaced Repetition** method to help you memorize English words effectively.
+A vocabulary learning application that uses the **Spaced Repetition** method to help you memorize English words effectively. Available as both a terminal (CLI) tool and a desktop app built with CustomTkinter.
 
 ## Features
 - Create and manage decks (add / delete)
 - Add, delete, and update words
 - Spaced repetition algorithm (easy / medium / hard → automatic scheduling)
 - Statistics screen (total decks, words per deck, today's study count)
+- Desktop UI (CustomTkinter): deck management, word CRUD screens, and an interactive study flow (show word → reveal answer → rate difficulty)
 - Local data storage with JSON
 - Corrupted data protection (auto-backup on JSON error)
 
 ## Built With
 - Python 3.x
-- No external dependencies (standard library only)
+- CustomTkinter (desktop UI)
+- No external dependencies for the core logic (standard library only)
 
 ## How to Run
 1. Make sure Python 3.x is installed
@@ -24,7 +26,15 @@ git clone https://github.com/cetinkrs/TiCard.git
 ```bash
 cd TiCard
 ```
-4. Run the app:
+4. Install the UI dependency:
+```bash
+pip install customtkinter
+```
+5. Run the desktop app:
+```bash
+python ui_test.py
+```
+Or run the terminal version instead:
 ```bash
 python main.py
 ```
@@ -49,9 +59,10 @@ Today's total words to study: 4
 ## Project Structure
 \```
 TiCard/
-    main.py # Terminal UI and menu
-    motor.py # Core logic (deck & word management, spaced repetition)
-    depolama.py # Data layer (read/write JSON)
+    main.py       # Terminal UI and menu
+    ui_test.py    # Desktop UI (CustomTkinter)
+    motor.py      # Core logic (deck & word management, spaced repetition)
+    depolama.py   # Data layer (read/write JSON)
     test_motor.py # Unit tests (pytest)
 \```
 
@@ -63,8 +74,13 @@ TiCard/
 - [x] Error handling (corrupted JSON protection, invalid input handling)
 - [x] Unit tests with pytest
 - [x] Statistics screen
-- [ ] SQLite database integration
-- [ ] Desktop UI with CustomTkinter
+- [x] Desktop UI with CustomTkinter
+- [ ] Refine spaced repetition algorithm (dynamic intervals based on review history)
+- [ ] REST API layer with FastAPI
+- [ ] PostgreSQL + SQLAlchemy integration
+- [ ] Dockerize (FastAPI + PostgreSQL via docker-compose)
 - [ ] Package as .exe with PyInstaller
+- [ ] Architecture diagram & API documentation
+
 ## License
-MIT License — feel free to use and modify. 
+MIT License — feel free to use and modify.

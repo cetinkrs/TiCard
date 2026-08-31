@@ -1,30 +1,47 @@
-#bu modülün amacı fiziksel diske kazıma veya diskten okuma gibi düşünebilirsin.
-import json
-import os #Pythona windows ve mac in dosya sistemine müdahele etmesine izin veren yetki diyebiliriz.(operating system- işletim sistemi denir.)
+import psycopg2
 
-klasor = os.path.dirname(__file__)
-DOSYA_YOLU = os.path.join(klasor, "kelimeler.json")
+# Veritabanı kimlik bilgileri
+DB_HOST = "localhost"
+DB_NAME = "ticard_db"
+DB_USER = "postgres"
+DB_PASS = "5432" # Kurulumda belirlediğin şifreyi buraya yaz
 
-def verileri_yukle():
-    """Program açıldığında JSON dosyasını okur. Dosya yoksa otomatik oluşturur."""
-    # Dosya sistemde var mı diye kontrol et
-    if not os.path.exists(DOSYA_YOLU): # buradaki kod satırı Bulunduğum klasörün içerisinde ... dosya adında bir dosya varmı ona bakar True veya False döndürür.
-        # Dosya yoksa 'w' modunda açıp içine boş bir süslü parantez (sözlük) yazıyoruz
-        with open(DOSYA_YOLU, "w", encoding="utf-8") as dosya:
-            json.dump({}, dosya)
-        return {} # Boş sözlük döndür
+def baglanti_olustur():
+    """PostgreSQL veritabanına bağlantı açar."""
+    return psycopg2.connect(
+        host=DB_HOST,
+        database=DB_NAME,
+        user=DB_USER,
+        password=DB_PASS
+    )
+
+def sorgu_calistir(sorgu, parametreler=None, fetch=False):
+    """
+    Gelen SQL sorgusunu çalıştırır.
+    - fetch=True: SELECT işlemleri içindir, veritabanından okunan veriyi liste olarak döndürür.
+    - fetch=False: INSERT, UPDATE, DELETE işlemleri içindir, veriyi yazar ve onaylar (commit).
+    """
+    conn = None
     try:
-        # Dosya varsa 'r' (varsayılan) moduyla okuyup içindeki veriyi Python'a aktar
-        with open(DOSYA_YOLU, "r", encoding="utf-8") as dosya:
-                return json.load(dosya)
-    except json.JSONDecodeError:
-        os.rename(DOSYA_YOLU, DOSYA_YOLU.replace(".json", "_bozuk.json"))
-        print("UYARI: kelimeler.json bozuk görünüyor.Bozuk dosya 'kelimeler_bozuk.json' olarak yedeklendi.Uygulama boş veriyle başlatılıyor.")
-        return {}
-    except OSError:
-        print("Dosya açılamadı.")
-        return {}
-def verileri_kaydet(veri):
-    """Sistemdeki güncel veriyi (sözlüğü) alıp JSON formatında dosyaya yazar."""
-    with open(DOSYA_YOLU, "w", encoding="utf-8") as dosya:
-        json.dump(veri, dosya, ensure_ascii=False, indent=4)
+        conn = baglanti_olustur()
+        cursor = conn.cursor()
+        
+        cursor.execute(sorgu, parametreler)
+        
+        if fetch:
+            sonuc = cursor.fetchall()
+            return sonuc
+        else:
+            conn.commit()
+            return True
+            
+    except Exception as e:
+        print(f"Veritabanı Hatası: {e}")
+        if conn:
+            conn.rollback() # Hata olursa işlemi geri al (veritabanı bozulmasını önler)
+        return False
+        
+    finally:
+        if conn:
+            cursor.close()
+            conn.close()

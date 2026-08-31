@@ -4,8 +4,12 @@ from datetime import datetime, timedelta #sadece import kullansaydık tüm datet
 
 class TiCardMotoru:
     def __init__(self):
-        # Sistem açıldığında arşive gidip tüm JSON verisini RAM'e (hafızaya) alıyoruz
-        self.veriler = depolama.verileri_yukle()
+        try: 
+            baglanti = depolama.baglanti_olustur()
+            if baglanti:
+                baglanti.close()
+        except Exception:
+            print("Uyarı: Veritabanı bağlantısı kurulamadı!")
 
     def deste_olustur(self, deste_adi):
         
@@ -13,9 +17,11 @@ class TiCardMotoru:
             return False
         
         else:
-            self.veriler[deste_adi] = {} #Sözlükler de köşeli parantez, sözlüğün içindeki bir "anahtar(key)" işaret etmek için kullanırız.
-            depolama.verileri_kaydet(self.veriler)
-            return True
+            sonuc = depolama.sorgu_calistir(
+                "INSERT INTO desteler (deste_adi) VALUES (%s)",
+                (deste_adi,)
+            )
+            return sonuc
     
     def kelime_olustur(self, deste_adi, kelime, anlam, cagrisim_ornek):
         if not self._deste_adi_var_mi(deste_adi):
@@ -25,26 +31,42 @@ class TiCardMotoru:
             return False
         
         else:
+            deste_sonuc = depolama.sorgu_calistir(
+                "SELECT id FROM desteler WHERE deste_adi = %s",
+                (deste_adi,),
+                fetch=True
+            )
+            deste_id = deste_sonuc[0][0]
+
             su_an = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            self.veriler[deste_adi][kelime] = {
-                "anlam": anlam,
-                "cagrisim_ornek": cagrisim_ornek,
-                "durum": "yeni",
-                "sonraki_tekrar": su_an
-            }
-            depolama.verileri_kaydet(self.veriler)
-            return True
-    
+
+            sonuc = depolama.sorgu_calistir(
+                """
+                INSERT INTO kelimeler (deste_id, kelime, anlam, cagrisim_ornek, n_degeri, ef_degeri, interval_gun, sonraki_tekrar)
+                VALUES(%s, %s, %s, %s, %s, %s, %s, %s)
+                """,
+                (deste_id, kelime, anlam, cagrisim_ornek, 0, 2.5, 0, su_an)
+            )
+            return sonuc
+        
     def kelime_sil(self, deste_adi, kelime):
         if not self._deste_adi_var_mi(deste_adi):
             return False 
         elif not self._kelime_var_mi(deste_adi, kelime):
             return False
         else:
-            del self.veriler[deste_adi][kelime]
-            depolama.verileri_kaydet(self.veriler)
-            return True
-    
+            deste_sonuc = depolama.sorgu_calistir(
+                "SELECT id FROM desteler WHERE  deste_adi = %s",
+                (deste_adi,),
+                fetch = True
+            )
+            deste_id = deste_sonuc[0][0]
+
+            sonuc = depolama.sorgu_calistir(
+                "DELETE FROM kelimeler WHERE deste_id = %s AND kelime = %s",
+                (deste_id, kelime)
+            )
+            return sonuc
     def tekrar_zamani_guncelle(self, deste_adi, kelime, zorluk_secimi):
         if not self._deste_adi_var_mi(deste_adi):
             return False
@@ -99,9 +121,21 @@ class TiCardMotoru:
         if not self._deste_adi_var_mi(deste_adi):
             return False
         else:
-            del self.veriler[deste_adi]
-            depolama.verileri_kaydet(self.veriler)
-            return True
+            deste_sonuc = depolama.sorgu_calistir(
+                "SELECT id FROM desteler WHERE  deste_adi = %s",
+                (deste_adi,),
+                fetch = True
+            )
+            deste_id = deste_sonuc[0][0]
+            sonuc = depolama.sorgu_calistir(
+                "DELETE FROM kelimeler WHERE deste_id = %s",
+                (deste_id,)
+            )
+            sonuc2 = depolama.sorgu_calistir(
+                "DELETE FROM desteler WHERE deste_adi = %s",
+                (deste_adi,)
+            )
+            return sonuc2
             
     def istatistik_getir(self):
         toplam_deste = len(self.veriler)
@@ -115,10 +149,33 @@ class TiCardMotoru:
             "desteler" : desteler,
             "bugun_calisilicak" : bugun_calisilicak
         }
-        
+
+#Yardımcı metotlar
 
     def _deste_adi_var_mi(self, deste_adi):
-        return deste_adi in self.veriler
-    def _kelime_var_mi(self, deste_adi, kelime):
-        return kelime in self.veriler[deste_adi]
+        sonuc = depolama.sorgu_calistir(
+            "SELECT id FROM desteler WHERE deste_adi = %s",
+            (deste_adi,),
+            fetch=True
+        )
+        return len(sonuc) > 0 
     
+    def _kelime_var_mi(self, deste_adi, kelime):
+        sonuc = depolama.sorgu_calistir(
+            "SELECT d.deste_adi ,k.kelime FROM kelimeler k JOIN desteler d ON k.deste_id = d.id WHERE d.deste_adi = %s AND k.kelime = %s",
+            (deste_adi, kelime),
+            fetch = True
+        )
+        return len(sonuc) > 0 
+#API ye implementasyonu sonrası burayı bir kontrol et çünkü performans düşürüyor 
+    def deste_listesi_getir(self):
+        ham_sonuc = depolama.sorgu_calistir("SELECT deste_adi FROM desteler", fetch = True)
+        return [satir[0] for satir in ham_sonuc]
+
+    def kelime_listesi_getir(self, deste_adi):
+        ham_sonuc = depolama.sorgu_calistir(
+            "SELECT k.kelime FROM kelimeler k JOIN desteler d ON k.deste_id = d.id WHERE d.deste_adi = %s",
+            (deste_adi,),
+            fetch=True
+        )
+        return [satir[0] for satir in ham_sonuc]

@@ -162,11 +162,11 @@ class TiCardApp(ctk.CTk ):
         )
         baslik.pack(pady=(20))
         
-        deste_secenecekleri = list(self.motor.veriler.keys()) 
+        deste_secenekleri = self.motor.deste_listesi_getir()
         #sonradan bu kısımda eğer deste yoksa hiç sıkıntı olabilir bunu en son bakıcaz hata düzeltmeleri olarak.!!!!
         self.deste_secim = ctk.CTkOptionMenu(
             pencere,
-            values = deste_secenecekleri
+            values = deste_secenekleri
         )
         self.deste_secim.pack(pady=10)
 
@@ -231,7 +231,7 @@ class TiCardApp(ctk.CTk ):
         )
         baslik.pack(pady = 10)
 
-        desteler = list(self.motor.veriler.keys())
+        desteler = self.motor.deste_listesi_getir()
         deste_secim = ctk.CTkOptionMenu(
             self.icerik_frame,
             values=desteler
@@ -351,14 +351,14 @@ class TiCardApp(ctk.CTk ):
         )
         baslik.pack(pady = (10))
 
-        deste_secenekleri = list(self.motor.veriler.keys())
+        deste_secenekleri = self.motor.deste_listesi_getir()
         deste_secim = ctk.CTkOptionMenu(
             pencere,
             values= deste_secenekleri
         )
         deste_secim.pack(pady = (10))
 
-        kelime_secenekleri = list(self.motor.veriler[deste_secim.get()].keys())
+        kelime_secenekleri = self.motor.kelime_listesi_getir(deste_secim.get())
         kelime_secim = ctk.CTkOptionMenu(
             pencere,
             values= kelime_secenekleri,
@@ -366,7 +366,7 @@ class TiCardApp(ctk.CTk ):
         kelime_secim.pack(pady = (10))
 
         def deste_degisti(secilen_deste):
-            yeni_kelimeler = list(self.motor.veriler[secilen_deste].keys())
+            yeni_kelimeler = self.motor.kelime_listesi_getir(secilen_deste)
             kelime_secim.configure(values=yeni_kelimeler)
             if yeni_kelimeler:
                 kelime_secim.set(yeni_kelimeler[0])
@@ -410,7 +410,7 @@ class TiCardApp(ctk.CTk ):
         )
         baslik.pack(pady=15)
 
-        desteler = list(self.motor.veriler.keys())
+        desteler = self.motor.deste_listesi_getir()
         deste_secim = ctk.CTkOptionMenu(
             pencere,
             values = desteler
@@ -491,7 +491,7 @@ class TiCardApp(ctk.CTk ):
             font=("Arial", 20, "bold")
         )
         baslik.pack(pady=(15))
-        desteler = list(self.motor.veriler.keys())
+        desteler = self.motor.deste_listesi_getir()
         deste_secim = ctk.CTkOptionMenu(
             pencere,
             values = desteler
@@ -525,7 +525,7 @@ class TiCardApp(ctk.CTk ):
         sil_btn.pack(pady=5)
 
         def deste_guncelle():
-            deste = list(self.motor.veriler.keys())
+            deste = self.motor.deste_listesi_getir()
             deste_secim.configure(values = deste)
             if deste:
                 deste_secim.set(deste[0])

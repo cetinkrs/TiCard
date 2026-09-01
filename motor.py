@@ -96,26 +96,58 @@ class TiCardMotoru:
         if not self._deste_adi_var_mi(deste_adi):
             return []
         else:
-            su_an = datetime.now()
-            calisilacaklar = []
-            for kelime,bilgiler in self.veriler[deste_adi].items(): #items() hem anahtar hem de değeri getirir
-                kayitli_tarih = datetime.strptime(bilgiler["sonraki_tekrar"], "%Y-%m-%d %H:%M:%S") #burada metni zamana çeviriyoruz jsson dosyasında metin olarak saklamıştık çünkü.
-                if kayitli_tarih <= su_an:
-                    calisilacaklar.append(kelime)
-            return calisilacaklar
+            ham_sonuc = depolama.sorgu_calistir(
+                "SELECT k.kelime FROM kelimeler k JOIN desteler d ON k.deste_id = d.id WHERE d.deste_adi = %s k.sonraki_tekrar <=NOW()",
+                (deste_adi,),
+                fetch = True
+            )
+            return [satir[0] for satir in ham_sonuc]
     
     def kelime_güncelle(self, deste_adi, kelime, anlam = None, cagrisim_ornek = None):
         if not self._deste_adi_var_mi(deste_adi):
             return False
         elif not self._kelime_var_mi(deste_adi, kelime):
             return False
-        else:
-            if anlam is not  None:
-                self.veriler[deste_adi][kelime]["anlam"] = anlam
-            if cagrisim_ornek is not None:
-                self.veriler[deste_adi][kelime]["cagrisim_ornek"] = cagrisim_ornek
-            depolama.verileri_kaydet(self.veriler)
-            return True
+        else:# şimdilik tekrarlı bir şekilde netlik amaçlı sorgular yazıcaz. İleride dinamik sql kurma mantığı ile burayı düzelticez.
+            deste_sonuc = depolama.sorgu_calistir(
+                "SELECT id FROM desteler WHERE deste_adi=%s",
+                (deste_adi,),
+                fetch = True
+            )
+            deste_id = deste_sonuc[0][0]
+
+            if anlam is not  None and cagrisim_ornek is not None:
+                sorgu = depolama.sorgu_calistir(
+                    """
+                    UPDATE kelimeler
+                    SET anlam = %s, cagrisim_ornek = %s
+                    WHERE deste_id = %s AND kelime = %s
+                    """,
+                    (anlam, cagrisim_ornek, deste_id, kelime)
+                )
+                return sorgu
+            
+            elif anlam is not None:
+                sorgu = depolama.sorgu_calistir(
+                    """
+                    UPDATE kelimeler
+                    SET anlam = %s
+                    WHERE deste_id = %s AND kelime = %s
+                    """,
+                    (anlam, deste_id, kelime)
+                )
+                return sorgu
+            elif cagrisim_ornek is not None:
+                sorgu = depolama.sorgu_calistir(
+                    """
+                    UPDATE kelimeler
+                    SET cagrisim_ornek = %s
+                    WHERE deste_id = %s AND kelime = %s
+                    """,
+                    (cagrisim_ornek, deste_id, kelime)
+                )
+                return sorgu
+            
 
     def deste_sil(self, deste_adi):
         if not self._deste_adi_var_mi(deste_adi):

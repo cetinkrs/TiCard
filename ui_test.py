@@ -417,7 +417,7 @@ class TiCardApp(ctk.CTk ):
         )
         deste_secim.pack(pady=15)
 
-        kelime_secenekleri = list(self.motor.veriler[deste_secim.get()].keys())
+        kelime_secenekleri = self.motor.kelime_listesi_getir(deste_secim.get())
         kelime_secim = ctk.CTkOptionMenu(
             pencere,
             values= kelime_secenekleri,
@@ -440,7 +440,7 @@ class TiCardApp(ctk.CTk ):
         cagrisim_entry.pack(pady=15)
 
         def deste_degisti(secilen_deste):
-            yeni_kelimeler = list(self.motor.veriler[secilen_deste].keys())
+            yeni_kelimeler = self.motor.kelime_listesi_getir(secilen_deste)
             kelime_secim.configure(values=yeni_kelimeler)
             if yeni_kelimeler:
                 kelime_secim.set(yeni_kelimeler[0])

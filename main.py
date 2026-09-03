@@ -10,32 +10,28 @@ def ana_menu():
             secim = int(input("Yapmak İstediğiniz İşlemi Seçiniz: "))
 
             if secim == 1:
-
                 deste_ismi = input("Desteye vermek istediğiniz metni giriniz: ")
                 sonuc = motor.deste_olustur(deste_ismi)
                 if sonuc == True:
                     print("Desteniz başarıyla oluşturuldu")
                 else:
                     print("Zaten bu adda bir deste var")
-            
-            elif secim == 2:
 
-                print(f"Mevcut desteler: {list(motor.veriler.keys())}")
+            elif secim == 2:
+                print(f"Mevcut desteler: {motor.deste_listesi_getir()}")
                 deste_ismi = input("İşlemini yapmak istediğiniz destenin adını giriniz: ")
                 kelime = input("Girmek istediğiniz kelimeyi seçiniz: ")
                 anlam = input("Girdiğiniz kelimenin anlamını giriniz: ")
                 cagrisim_ornek = input("Buraya yardımcı bir cümle gibi metinler girmek isterseniz giriniz yoksa sadece entere basınız:")
                 sonuc = motor.kelime_olustur(deste_ismi, kelime, anlam, cagrisim_ornek)
-             
+
                 if sonuc == True:
                     print(f"\nBaşarılı: '{kelime}' kelimesi desteye eklendi!")
-
                 else:
                     print("\nHata: Deste bulunamadı veya bu kelime zaten destede var!")
 
             elif secim == 3:
-
-                print(f"Mevcut Desteler: {list(motor.veriler.keys())}")
+                print(f"Mevcut Desteler: {motor.deste_listesi_getir()}")
                 deste_ismi = input("Çalışmak istediğiniz desteyi seçiniz: ")
                 sonuc = motor.calisicak_kelimeleri_getir(deste_ismi)
 
@@ -46,14 +42,11 @@ def ana_menu():
 
                     for kelime in sonuc:
                         print(f"\nSıradaki kelime: {kelime}")
-
                         input("Cevabı görmek için entere basın.")
 
-                        anlam = motor.veriler[deste_ismi][kelime]["anlam"]
-                        ornek = motor.veriler[deste_ismi][kelime]["cagrisim_ornek"]
-
-                        print(f"Anlamı: {anlam}")
-                        print(f"Örnek Cümle: {ornek}")
+                        detay = motor.kelime_detay_getir(deste_ismi, kelime)
+                        print(f"Anlamı: {detay['anlam']}")
+                        print(f"Örnek Cümle: {detay['cagrisim_ornek']}")
 
                         print("\nNe kadar zorlandın?")
                         print("[1] Kolay (4 gün sonra)")
@@ -69,8 +62,7 @@ def ana_menu():
                             motor.tekrar_zamani_guncelle(deste_ismi, kelime, "zor")
 
             elif secim == 4:
-
-                print(f"Mevcut Desteler:{list(motor.veriler.keys())}")
+                print(f"Mevcut Desteler: {motor.deste_listesi_getir()}")
                 deste_ismi = input("Silmek istediğiniz destenin ismini giriniz:")
                 kelime = input("Silmek istediğiniz kelimeyi seçiniz:")
                 sonuc = motor.kelime_sil(deste_ismi, kelime)
@@ -81,21 +73,20 @@ def ana_menu():
                     print("işleminiz başarıyla gerçekleştirildi")
 
             elif secim == 5:
-
-                print(f"Mevcut desteler{list(motor.veriler.keys())}")
+                print(f"Mevcut desteler: {motor.deste_listesi_getir()}")
                 deste_ismi = input("Güncellemek istediğiniz desteyi seçiniz.")
                 kelime = input("Güncellemek istediğiniz kelimeyi seçiniz.")
                 anlam = input("anlam kısmını değiştirmek isterseniz yazınız yoksa boş bırakınız.") or None
                 cagrisim_ornek = input("cagrisim_ornek kısmını değiştirmek isterseniz yazınız yoksa boş bırakınız.") or None
                 sonuc = motor.kelime_güncelle(deste_ismi, kelime, anlam, cagrisim_ornek)
-                
+
                 if sonuc is False:
                     print("deste ismi yok veya kelime yok.")
                 else:
                     print("işleminiz başarıyla gerçekleştirildi")
 
             elif secim == 6:
-                print(f"Mevcut Desteler:{list(motor.veriler.keys())}")
+                print(f"Mevcut Desteler: {motor.deste_listesi_getir()}")
                 deste_adi = input("Silmek istediğiniz destenin ismini giriniz:")
                 sonuc = motor.deste_sil(deste_adi)
 
@@ -103,17 +94,16 @@ def ana_menu():
                     print("Bu deste zaten silinmiş.")
                 else:
                     print("işleminiz başarıyla gerçekleştirildi")
-            
+
             elif secim == 7:
-    
-                istatistik = motor.istatistik_getir()  
+                istatistik = motor.istatistik_getir()
                 print("=== İstatistikler ===")
                 print(f"Toplam deste sayısı: {istatistik['toplam_deste']}")
                 print(f"\nDeste bazlı kelime sayısı:")
                 for deste, sayi in istatistik["desteler"].items():
                     print(f"  - {deste}: {sayi} kelime")
                 print(f"\nBugün çalışılacak toplam kelime: {istatistik['bugun_calisilicak']}")
-            
+
             elif secim == 8:
                 print("Uygulamadan çıkış yapılıyor iyi günler...")
                 break
@@ -128,7 +118,5 @@ def ana_menu():
             print(f"Beklenmedik bir hata oluştu{e}.")
             print("Ana menüye dönülüyor.")
 
-if __name__ ==  "__main__":
+if __name__ == "__main__":
     ana_menu()
-
-        

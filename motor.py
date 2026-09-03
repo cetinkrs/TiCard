@@ -170,12 +170,32 @@ class TiCardMotoru:
             return sonuc2
             
     def istatistik_getir(self):
-        toplam_deste = len(self.veriler)
+        toplam_sonuc = depolama.sorgu_calistir(
+            "SELECT COUNT(*) FROM desteler",
+            fetch = True
+        )
+        toplam_deste = toplam_sonuc[0][0]
         desteler = {}
-        bugun_calisilicak = 0
-        for deste in self.veriler:
-            desteler[deste] = len(self.veriler[deste])
-            bugun_calisilicak += len(self.calisicak_kelimeleri_getir(deste))
+        bugun_calisilicak_sonuc = depolama.sorgu_calistir(
+            "SELECT COUNT(*) FROM kelimeler WHERE sonraki_tekrar <= NOW()",
+            fetch = True
+        )
+        bugun_calisilicak = bugun_calisilicak_sonuc[0][0]
+
+        desteler_sonuc = depolama.sorgu_calistir(
+            """
+            SELECT d.deste_adi, COUNT(k.id)
+            FROM desteler d
+            LEFT JOIN kelimeler k ON k.deste_id = d.id
+            GROUP BY d.deste_adi
+            """,
+            fetch = True
+        )
+        for satir in desteler_sonuc:
+            deste_adi = satir[0]
+            kelime_sayisi = satir[1]
+            desteler[deste_adi] = kelime_sayisi
+
         return {
             "toplam_deste" : toplam_deste,
             "desteler" : desteler,
@@ -211,3 +231,18 @@ class TiCardMotoru:
             fetch=True
         )
         return [satir[0] for satir in ham_sonuc]
+#main.py için
+def kelime_detay_getir(self, deste_adi, kelime):
+    sonuc = depolama.sorgu_calistir(
+        """
+        SELECT k.anlam, k.cagrisim_ornek 
+        FROM kelimeler k 
+        JOIN desteler d ON k.deste_id = d.id 
+        WHERE d.deste_adi = %s AND k.kelime = %s
+        """,
+        (deste_adi, kelime),
+        fetch=True
+    )
+    if not sonuc:
+        return None
+    return {"anlam": sonuc[0][0], "cagrisim_ornek": sonuc[0][1]}

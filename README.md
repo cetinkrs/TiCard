@@ -81,6 +81,6 @@ TiCard/
 - [ ] Dockerize (FastAPI + PostgreSQL via docker-compose)
 - [ ] Package as .exe with PyInstaller
 - [ ] Architecture diagram & API documentation
-
+- [ ] `test_motor.py` is written for the old JSON-based data layer and needs to be rewritten for PostgreSQL (including test database isolation, so tests don't touch production data).
 ## License
 MIT License — feel free to use and modify.

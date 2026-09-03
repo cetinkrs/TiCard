@@ -1,10 +1,9 @@
 import psycopg2
 
-# Veritabanı kimlik bilgileri
 DB_HOST = "localhost"
 DB_NAME = "ticard_db"
 DB_USER = "postgres"
-DB_PASS = "5432" # Kurulumda belirlediğin şifreyi buraya yaz
+DB_PASS = "5432" 
 
 def baglanti_olustur():
     """PostgreSQL veritabanına bağlantı açar."""
@@ -38,7 +37,7 @@ def sorgu_calistir(sorgu, parametreler=None, fetch=False):
     except Exception as e:
         print(f"Veritabanı Hatası: {e}")
         if conn:
-            conn.rollback() # Hata olursa işlemi geri al (veritabanı bozulmasını önler)
+            conn.rollback() 
         return False
         
     finally:

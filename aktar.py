@@ -1,3 +1,4 @@
+#JSON veri formatını veritabanına aktardığımız bir script.
 import json
 import psycopg2
 import os
@@ -15,7 +16,7 @@ def aktar():
         conn = psycopg2.connect(host=DB_HOST, database=DB_NAME, user=DB_USER, password=DB_PASS)
         cursor = conn.cursor()
 
-        # Eski tabloları temizle (şema değişti, sıfırdan kuruyoruz)
+        
         cursor.execute("DROP TABLE IF EXISTS kelimeler")
         cursor.execute("DROP TABLE IF EXISTS desteler")
 

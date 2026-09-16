@@ -261,8 +261,9 @@ class TiCardApp(ctk.CTk ):
         for widget in self.icerik_frame.winfo_children():
             widget.destroy()
         su_anki_kelime = self.calisma_listesi[self.calisma_index]
-        su_anki_anlam = self.motor.veriler[self.deste_adi][su_anki_kelime]["anlam"]
-        su_anki_cagrisim = self.motor.veriler[self.deste_adi][su_anki_kelime]["cagrisim_ornek"]
+        detay = self.motor.kelime_detay_getir(self.deste_adi, su_anki_kelime)
+        su_anki_anlam = detay["anlam"]
+        su_anki_cagrisim = detay["cagrisim_ornek"]
 
         anlam_goster = ctk.CTkLabel(
             self.icerik_frame,
@@ -271,7 +272,7 @@ class TiCardApp(ctk.CTk ):
         )
         anlam_goster.pack(pady = 10)
 
-        ornek_goster = ctk.CTkLabel(
+        ornek_goster = ctk.CTkLabel(    
             self.icerik_frame,
             text = f"Örnek: {su_anki_cagrisim}",
             font=("Arial", 12, "bold")
@@ -296,6 +297,13 @@ class TiCardApp(ctk.CTk ):
                 mesaj_lbl.pack(pady=15)
         btn_frame = ctk.CTkFrame(self.icerik_frame)
         btn_frame.pack(pady=150)
+
+        tekrar_btn = ctk.CTkButton(
+            btn_frame,
+            text="Tekrar",
+            command=lambda: zorluk_tiklandi("tekrar")
+        )
+        tekrar_btn.pack(side="left", padx=10, pady=10)
 
         kolay_btn = ctk.CTkButton(
             btn_frame,

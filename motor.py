@@ -31,12 +31,7 @@ class TiCardMotoru:
             return False
         
         else:
-            deste_sonuc = depolama.sorgu_calistir(
-                "SELECT id FROM desteler WHERE deste_adi = %s",
-                (deste_adi,),
-                fetch=True
-            )
-            deste_id = deste_sonuc[0][0]
+            deste_id = self._deste_id_bul(deste_adi)
 
             su_an = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
@@ -55,12 +50,7 @@ class TiCardMotoru:
         elif not self._kelime_var_mi(deste_adi, kelime):
             return False
         else:
-            deste_sonuc = depolama.sorgu_calistir(
-                "SELECT id FROM desteler WHERE  deste_adi = %s",
-                (deste_adi,),
-                fetch = True
-            )
-            deste_id = deste_sonuc[0][0]
+            deste_id = self._deste_id_bul(deste_adi)
 
             sonuc = depolama.sorgu_calistir(
                 "DELETE FROM kelimeler WHERE deste_id = %s AND kelime = %s",
@@ -73,31 +63,57 @@ class TiCardMotoru:
         elif not self._kelime_var_mi(deste_adi, kelime):
             return False
         else:
-            su_an = datetime.now()
-            if zorluk_secimi == "zor":
-                yeni_tarih = su_an + timedelta(minutes=10)
 
+            if zorluk_secimi == "tekrar":
+                q = 2
+            elif zorluk_secimi == "zor":
+                q = 3
             elif zorluk_secimi == "orta":
-                yeni_tarih = su_an + timedelta(days=1)
-
+                q = 4
             elif zorluk_secimi == "kolay":
-                yeni_tarih = su_an + timedelta(days=4)
-
+                q = 5
             else:
-                print("Yanlış zorluk seçimi lütfen daha sonra tekrar deneyiniz.")
+                print("Yanlış zorluk seçimi.")
                 return False
-                #UI de burayı kullanıcının tekrar bir seçim yapmasına olanak tanıyacağımız şekilde düzenlememiz laızm .
-            self.veriler[deste_adi][kelime]["sonraki_tekrar"] = yeni_tarih.strftime("%Y-%m-%d %H:%M:%S")
-            depolama.verileri_kaydet(self.veriler)
-            
-            return True
-    
+
+            deste_id = self._deste_id_bul(deste_adi)
+
+            mevcut_sonuc = depolama.sorgu_calistir(
+                """
+                SELECT k.n_degeri, k.ef_degeri, k.interval_gun
+                FROM kelimeler k 
+                JOIN desteler d ON k.deste_id = d.id
+                WHERE d.deste_adi = %s AND k.kelime = %s
+                """,
+                (deste_adi, kelime),
+                fetch = True
+            )
+            n = mevcut_sonuc[0][0]
+            ef = mevcut_sonuc[0][1]
+            i = mevcut_sonuc[0][2]
+
+            n, yeni_ef, yeni_i = self._sm2_hesapla(n, ef, i, q)
+
+            yeni_tarih = datetime.now() + timedelta(days = yeni_i)
+            sonraki_tekrar = yeni_tarih.strftime("%Y-%m-%d %H:%M:%S")
+
+            sonuc = depolama.sorgu_calistir(
+            """
+            UPDATE kelimeler
+            SET n_degeri = %s, ef_degeri = %s, interval_gun = %s, sonraki_tekrar = %s
+            WHERE deste_id = %s AND kelime = %s
+            """,
+            (n, yeni_ef, yeni_i, sonraki_tekrar, deste_id, kelime)
+            )
+            return sonuc
+
+
     def calisicak_kelimeleri_getir(self, deste_adi):
         if not self._deste_adi_var_mi(deste_adi):
             return []
         else:
             ham_sonuc = depolama.sorgu_calistir(
-                "SELECT k.kelime FROM kelimeler k JOIN desteler d ON k.deste_id = d.id WHERE d.deste_adi = %s k.sonraki_tekrar <=NOW()",
+               "SELECT k.kelime FROM kelimeler k JOIN desteler d ON k.deste_id = d.id WHERE d.deste_adi = %s AND k.sonraki_tekrar <=NOW()",
                 (deste_adi,),
                 fetch = True
             )
@@ -109,12 +125,7 @@ class TiCardMotoru:
         elif not self._kelime_var_mi(deste_adi, kelime):
             return False
         else:# şimdilik tekrarlı bir şekilde netlik amaçlı sorgular yazıcaz. İleride dinamik sql kurma mantığı ile burayı düzelticez.
-            deste_sonuc = depolama.sorgu_calistir(
-                "SELECT id FROM desteler WHERE deste_adi=%s",
-                (deste_adi,),
-                fetch = True
-            )
-            deste_id = deste_sonuc[0][0]
+            deste_id = self._deste_id_bul(deste_adi)
 
             if anlam is not  None and cagrisim_ornek is not None:
                 sorgu = depolama.sorgu_calistir(
@@ -153,12 +164,7 @@ class TiCardMotoru:
         if not self._deste_adi_var_mi(deste_adi):
             return False
         else:
-            deste_sonuc = depolama.sorgu_calistir(
-                "SELECT id FROM desteler WHERE  deste_adi = %s",
-                (deste_adi,),
-                fetch = True
-            )
-            deste_id = deste_sonuc[0][0]
+            deste_id = self._deste_id_bul(deste_adi)
             sonuc = depolama.sorgu_calistir(
                 "DELETE FROM kelimeler WHERE deste_id = %s",
                 (deste_id,)
@@ -219,6 +225,35 @@ class TiCardMotoru:
             fetch = True
         )
         return len(sonuc) > 0 
+
+    def _sm2_hesapla(self, n, ef, i, q):
+        yeni_ef = ef + (0.1 - (5 - q) * (0.08 + (5 - q) * 0.02))
+        if yeni_ef < 1.3:
+            yeni_ef = 1.3
+
+        if q < 3:
+            yeni_n = 0
+            yeni_i = 1
+        else:
+        
+            if n == 0:
+                yeni_i = 1
+            elif n == 1:
+                yeni_i = 6
+            else:
+                yeni_i = i * ef
+            yeni_n = n + 1
+
+        return yeni_n, yeni_ef, yeni_i
+
+    def _deste_id_bul(self, deste_adi):
+        deste_id = depolama.sorgu_calistir(
+            "SELECT id FROM desteler WHERE deste_adi = %s",
+            (deste_adi,),
+            fetch = True
+        )
+        return deste_id[0][0]
+
 #API ye implementasyonu sonrası burayı bir kontrol et çünkü performans düşürüyor 
     def deste_listesi_getir(self):
         ham_sonuc = depolama.sorgu_calistir("SELECT deste_adi FROM desteler", fetch = True)

@@ -266,18 +266,18 @@ class TiCardMotoru:
             fetch=True
         )
         return [satir[0] for satir in ham_sonuc]
-#main.py için
-def kelime_detay_getir(self, deste_adi, kelime):
-    sonuc = depolama.sorgu_calistir(
-        """
-        SELECT k.anlam, k.cagrisim_ornek 
-        FROM kelimeler k 
-        JOIN desteler d ON k.deste_id = d.id 
-        WHERE d.deste_adi = %s AND k.kelime = %s
-        """,
-        (deste_adi, kelime),
-        fetch=True
-    )
-    if not sonuc:
-        return None
-    return {"anlam": sonuc[0][0], "cagrisim_ornek": sonuc[0][1]}
+    #main.py için
+    def kelime_detay_getir(self, deste_adi, kelime):
+        sonuc = depolama.sorgu_calistir(
+            """
+            SELECT k.anlam, k.cagrisim_ornek 
+            FROM kelimeler k 
+            JOIN desteler d ON k.deste_id = d.id 
+            WHERE d.deste_adi = %s AND k.kelime = %s
+            """,
+            (deste_adi, kelime),
+            fetch=True
+        )
+        if not sonuc:
+            return None
+        return {"anlam": sonuc[0][0], "cagrisim_ornek": sonuc[0][1]}
